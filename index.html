@@ -37,14 +37,11 @@
   </head>
 
   <body>
-    <canvas id="canvas" class="relative"></canvas>
-    <canvas
-      id="flow-canvas"
-      class="absolute top-0 left-0 bottom-0 right-0"
-    ></canvas>
+    <canvas id="canvas"></canvas>
+    <canvas id="flow-canvas"></canvas>
 
     <img class="dn" id="image" width="500" />
-    <canvas class="dn" id="image-canvas" class="relative"></canvas>
+    <canvas class="dn" id="image-canvas"></canvas>
 
     <!-- bottom-left toolbar -->
     <div class="toolbar">
@@ -150,6 +147,45 @@
         <details class="settings-section" open>
           <summary>Rendering</summary>
           <div class="settings-section-body">
+            <label for="canvas-size">Canvas size</label>
+            <select id="canvas-size">
+              <optgroup label="Screen">
+                <option value="screen" selected>Fit screen</option>
+              </optgroup>
+              <optgroup label="Poster (300dpi)">
+                <option value="a4-portrait">A4 Portrait — 2480×3508</option>
+                <option value="a4-landscape">A4 Landscape — 3508×2480</option>
+                <option value="a3-portrait">A3 Portrait — 3508×4961</option>
+                <option value="a3-landscape">A3 Landscape — 4961×3508</option>
+                <option value="letter-portrait">US Letter Portrait — 2550×3300</option>
+                <option value="letter-landscape">US Letter Landscape — 3300×2550</option>
+              </optgroup>
+              <optgroup label="Social">
+                <option value="square">Square — 2048×2048</option>
+                <option value="ig-post">Instagram Post — 1080×1350</option>
+                <option value="ig-story">Instagram Story — 1080×1920</option>
+              </optgroup>
+              <optgroup label="Other">
+                <option value="custom">Custom…</option>
+              </optgroup>
+            </select>
+            <small
+              >Sets the exact pixel size the simulation runs at — this is
+              what gets exported, so pick the shape you want your poster to
+              be before you start.</small
+            >
+
+            <div id="custom-canvas-size-container" class="two-col dn mt2">
+              <div>
+                <label for="canvas-width">Width (px)</label>
+                <input id="canvas-width" type="number" value="2048" />
+              </div>
+              <div>
+                <label for="canvas-height">Height (px)</label>
+                <input id="canvas-height" type="number" value="2048" />
+              </div>
+            </div>
+
             <div class="two-col">
               <div>
                 <label for="min-pen-width">Min pen width</label>
@@ -260,38 +296,10 @@
             <button class="format-btn" data-format="jpeg">JPEG</button>
             <button class="format-btn" data-format="svg">SVG</button>
           </div>
-
-          <label class="mt3">Size</label>
-          <select id="export-size">
-            <optgroup label="Poster (300dpi)">
-              <option value="a4-portrait">A4 Portrait — 2480×3508</option>
-              <option value="a4-landscape">A4 Landscape — 3508×2480</option>
-              <option value="a3-portrait">A3 Portrait — 3508×4961</option>
-              <option value="a3-landscape">A3 Landscape — 4961×3508</option>
-              <option value="letter-portrait">US Letter Portrait — 2550×3300</option>
-              <option value="letter-landscape">US Letter Landscape — 3300×2550</option>
-            </optgroup>
-            <optgroup label="Social">
-              <option value="square" selected>Square — 2048×2048</option>
-              <option value="ig-post">Instagram Post — 1080×1350</option>
-              <option value="ig-story">Instagram Story — 1080×1920</option>
-            </optgroup>
-            <optgroup label="Other">
-              <option value="screen">Current screen size</option>
-              <option value="custom">Custom…</option>
-            </optgroup>
-          </select>
-
-          <div id="custom-size-container" class="two-col dn mt2">
-            <div>
-              <label for="export-width">Width (px)</label>
-              <input id="export-width" type="number" value="2048" />
-            </div>
-            <div>
-              <label for="export-height">Height (px)</label>
-              <input id="export-height" type="number" value="2048" />
-            </div>
-          </div>
+          <small
+            >Exports exactly what's currently on screen, at full
+            resolution.</small
+          >
 
           <button id="start-export" class="btn-primary mt4">
             Export image
