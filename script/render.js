@@ -10,11 +10,12 @@ const renderParticle = (context, color, particle, config) => {
   const fromY = particle.y;
 
   context.strokeStyle = color;
-  context.lineWidth = clamp(
-    config.minPenWidth,
-    config.maxPenWidth,
-    Math.sqrt(particle.vx * particle.vx + particle.vy * particle.vy)
-  );
+  context.lineWidth =
+    clamp(
+      config.minPenWidth,
+      config.maxPenWidth,
+      Math.sqrt(particle.vx * particle.vx + particle.vy * particle.vy)
+    ) * (config.lineScale || 1);
 
   context.beginPath();
   context.moveTo(particle.x, particle.y);
