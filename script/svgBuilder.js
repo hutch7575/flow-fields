@@ -45,7 +45,8 @@ export const buildColourSVG = (pathHistory, config, onProgress) => {
     if (curves.length > 0) {
       const color = segment[Math.floor(segment.length / 2)].color;
       const firstCurve = curves[0];
-      svg += `\t<path stroke-width="${config.minPenWidth}" d="M ${firstCurve[0][0]} ${firstCurve[0][1]} `;
+      const strokeWidth = config.minPenWidth * (config.lineScale || 1);
+      svg += `\t<path stroke-width="${strokeWidth}" d="M ${firstCurve[0][0]} ${firstCurve[0][1]} `;
       for (const curve of curves) {
         svg += `C ${curve[1][0]} ${curve[1][1]}, ${curve[2][0]} ${curve[2][1]}, ${curve[3][0]} ${curve[3][1]} `;
       }
