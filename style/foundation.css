@@ -35,6 +35,15 @@ canvas {
   display: block;
 }
 
+#canvas,
+#flow-canvas {
+  position: absolute;
+}
+
+#flow-canvas {
+  pointer-events: none;
+}
+
 /* ── toolbar ── */
 .toolbar {
   position: fixed;
