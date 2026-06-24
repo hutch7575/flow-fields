@@ -6,21 +6,29 @@ import JSONfn from "./lib/jsonfn.js";
 
 /**
  * Serialies the unserializable fields in the config by transforming
- * the function definitions to a string using JSON
+ * the function definitions to a string using JSON.
+ *
+ * gradientFn is intentionally NOT serialized this way: chroma's `.scale()`
+ * returns a closure over chroma's own internal (minified) variables, which
+ * doesn't survive being turned into text and eval()'d back in a different
+ * scope. Instead we send colorPalette/customColors (plain serializable data)
+ * and let the receiving side call getGradient() itself to rebuild a real,
+ * working gradient function.
  */
 export const serializeConfig = (config) => {
+  const { gradientFn, ...rest } = config;
   return {
-    ...config,
-    gradientFn: JSONfn.stringify(config.gradientFn),
+    ...rest,
     customFlowFieldFunction: JSONfn.stringify(config.customFlowFieldFunction),
     flowFieldFn: JSONfn.stringify(config.flowFieldFn),
   };
 };
 
 export const deserializeConfig = (config) => {
+  const { gradientFn, ...rest } = config;
   return {
-    ...config,
-    gradientFn: JSONfn.parse(config.gradientFn),
+    ...rest,
+    gradientFn: getGradient(config.colorPalette, config.customColors),
     customFlowFieldFunction: JSONfn.parse(config.customFlowFieldFunction),
     flowFieldFn: JSONfn.parse(config.flowFieldFn),
   };
@@ -55,6 +63,12 @@ export const form = () => {
   const maxPenWidthInput = document.querySelector("#max-pen-width");
   const backgroundColorInput = document.querySelector("#bg-color");
   const colorPaletteInput = document.querySelector("#color-palette");
+  const customGradientContainer = document.querySelector(
+    "#custom-gradient-container"
+  );
+  const customGradientStops = document.querySelector(
+    "#custom-gradient-stops"
+  );
   const flowFieldFunctionInput = document.querySelector("#flow-field-function");
   const resolutionContainer = document.querySelector("#resolution-container");
   const resolutionInput = document.querySelector("#resolution");
@@ -90,7 +104,9 @@ export const form = () => {
       friction: Number.parseFloat(frictionInput.value),
       minPenWidth: Number.parseFloat(minPenWidthInput.value),
       maxPenWidth: Number.parseFloat(maxPenWidthInput.value),
-      gradientFn: getGradient(colorPaletteInput.value),
+      gradientFn: getGradient(colorPaletteInput.value, getCustomGradientColors()),
+      colorPalette: colorPaletteInput.value,
+      customColors: getCustomGradientColors(),
       flowFieldFunction: flowFieldFunctionInput.value,
       resolution: Number.parseFloat(resolutionInput.value),
       customFlowFieldFunction: customFlowFieldFunctionInput.value,
@@ -116,6 +132,49 @@ export const form = () => {
     return baseConfig;
   };
 
+  const getCustomGradientColors = () => {
+    return Array.from(
+      customGradientStops.querySelectorAll("input[type=color]")
+    ).map((input) => input.value);
+  };
+
+  const addGradientStop = (color) => {
+    const row = document.createElement("div");
+    row.className = "gradient-stop";
+
+    const colorInput = document.createElement("input");
+    colorInput.type = "color";
+    colorInput.value = color;
+    colorInput.className = "gradient-stop-color";
+    colorInput.addEventListener("change", () => {
+      config = readConfig();
+    });
+
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "gradient-stop-remove";
+    removeBtn.innerHTML = "&times;";
+    removeBtn.title = "Remove this colour";
+    removeBtn.addEventListener("click", () => {
+      if (customGradientStops.children.length <= 2) return;
+      row.remove();
+      config = readConfig();
+    });
+
+    row.appendChild(colorInput);
+    row.appendChild(removeBtn);
+    customGradientStops.appendChild(row);
+  };
+
+  document
+    .querySelector("#add-gradient-stop")
+    .addEventListener("click", () => {
+      addGradientStop("#ffffff");
+      config = readConfig();
+    });
+
+  ["#03071e", "#9d0208", "#ffba08"].forEach(addGradientStop);
+
   resetSeed();
   let config = readConfig();
 
@@ -123,6 +182,14 @@ export const form = () => {
   body.style.backgroundColor = backgroundColorInput.value;
   backgroundColorInput.addEventListener("change", () => {
     body.style.backgroundColor = backgroundColorInput.value;
+  });
+
+  colorPaletteInput.addEventListener("change", () => {
+    if (colorPaletteInput.value === "custom") {
+      showNode(customGradientContainer);
+    } else {
+      hideNode(customGradientContainer);
+    }
   });
 
   flowFieldFunctionInput.addEventListener("change", () => {
