@@ -30,6 +30,7 @@ export const form = ({ getCanvasSize } = {}) => {
   const outOfBoundsRecreateInput = document.querySelector("#oob-recreate");
   const minPenWidthInput = document.querySelector("#min-pen-width");
   const maxPenWidthInput = document.querySelector("#max-pen-width");
+  const lineScaleInput = document.querySelector("#line-scale");
   const backgroundColorInput = document.querySelector("#bg-color");
   const colorPaletteInput = document.querySelector("#color-palette");
   const customGradientContainer = document.querySelector(
@@ -77,6 +78,7 @@ export const form = ({ getCanvasSize } = {}) => {
       friction: Number.parseFloat(frictionInput.value),
       minPenWidth: Number.parseFloat(minPenWidthInput.value),
       maxPenWidth: Number.parseFloat(maxPenWidthInput.value),
+      lineScale: Number.parseFloat(lineScaleInput.value) || 1,
       gradientFn: getGradient(colorPaletteInput.value, getCustomGradientColors()),
       colorPalette: colorPaletteInput.value,
       customColors: getCustomGradientColors(),
