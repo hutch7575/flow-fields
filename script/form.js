@@ -2,51 +2,20 @@ import { getGradient } from "./color.js";
 import { getFlowField } from "./flow.js";
 import { hideNode, showNode } from "./dom.js";
 import rnd from "./random.js";
-import JSONfn from "./lib/jsonfn.js";
 
-/**
- * Serialies the unserializable fields in the config by transforming
- * the function definitions to a string using JSON.
- *
- * gradientFn is intentionally NOT serialized this way: chroma's `.scale()`
- * returns a closure over chroma's own internal (minified) variables, which
- * doesn't survive being turned into text and eval()'d back in a different
- * scope. Instead we send colorPalette/customColors (plain serializable data)
- * and let the receiving side call getGradient() itself to rebuild a real,
- * working gradient function.
- */
-export const serializeConfig = (config) => {
-  const { gradientFn, ...rest } = config;
-  return {
-    ...rest,
-    customFlowFieldFunction: JSONfn.stringify(config.customFlowFieldFunction),
-    flowFieldFn: JSONfn.stringify(config.flowFieldFn),
-  };
-};
-
-export const deserializeConfig = (config) => {
-  const { gradientFn, ...rest } = config;
-  return {
-    ...rest,
-    gradientFn: getGradient(config.colorPalette, config.customColors),
-    customFlowFieldFunction: JSONfn.parse(config.customFlowFieldFunction),
-    flowFieldFn: JSONfn.parse(config.flowFieldFn),
-  };
-};
-
-const getImageData = (image) => {
+const getImageData = (image, width, height) => {
   const imageCanvas = document.querySelector("#image-canvas");
   const imageContext = imageCanvas.getContext("2d", {
     willReadFrequently: true,
   });
-  imageCanvas.width = window.innerWidth;
-  imageCanvas.height = window.innerHeight;
+  imageCanvas.width = width;
+  imageCanvas.height = height;
 
-  imageContext.drawImage(image, 0, 0, window.innerWidth, window.innerHeight);
-  return imageContext.getImageData(0, 0, window.innerWidth, window.innerHeight);
+  imageContext.drawImage(image, 0, 0, width, height);
+  return imageContext.getImageData(0, 0, width, height);
 };
 
-export const form = () => {
+export const form = ({ getCanvasSize } = {}) => {
   const body = document.querySelector("body");
   const form = document.querySelector("#form");
   const imageNode = document.querySelector("#image");
@@ -94,9 +63,13 @@ export const form = () => {
   };
 
   const readConfig = () => {
+    const { width, height } = getCanvasSize
+      ? getCanvasSize()
+      : { width: window.innerWidth, height: window.innerHeight };
+
     const baseConfig = {
-      width: window.innerWidth,
-      height: window.innerHeight,
+      width,
+      height,
       maxSteps: Number.parseInt(maxStepsInput.value),
       numPoints: Number.parseInt(numPointsInput.value),
       force: Number.parseFloat(forceInput.value),
@@ -122,7 +95,9 @@ export const form = () => {
     const { generationData, fn } = getFlowField(flowFieldFunctionInput.value, {
       resolution: baseConfig.resolution,
       imageData:
-        baseConfig.sourceImage !== null ? getImageData(imageNode) : null,
+        baseConfig.sourceImage !== null
+          ? getImageData(imageNode, width, height)
+          : null,
       customFn: baseConfig.customFn,
     });
 
