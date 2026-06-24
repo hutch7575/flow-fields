@@ -1,0 +1,27 @@
+body {
+  background-color: #000;
+  padding: 0;
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+}
+
+button {
+  background-color: unset;
+  border: none;
+}
+
+.minw-6 {
+  min-width: 6rem;
+}
+
+.minh-2 {
+  min-height: 2rem;
+}
+
+.maxh-75 {
+  max-height: 75%;
+}
+
+.flex-1 {
+  flex: 1;
+}
