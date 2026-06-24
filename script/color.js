@@ -26,8 +26,10 @@ const getChromaScaleFromCSV = (colors) => {
     .mode("lab");
 };
 
-export const getGradient = (colorPalette) => {
+export const getGradient = (colorPalette, customColors) => {
   switch (colorPalette) {
+    case "custom":
+      return getChromaScaleFromCSV((customColors || ["#000000", "#ffffff"]).join(", "));
     case "black":
       return () => chroma("#000");
     case "magenta":
